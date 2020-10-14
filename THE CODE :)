@@ -1,0 +1,57 @@
+pragma solidity  ^0.6.2;
+
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/AccessControl.sol";
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/GSN/Context.sol";
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/Counters.sol";
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC721/ERC721.sol";
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC721/ERC721Burnable.sol";
+
+
+contract UgiohToken is ERC721, AccessControl {
+      bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+      bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
+   
+        constructor(string memory name, string memory symbol, string memory baseURI) public ERC721(name, symbol) {
+        _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
+
+        _setupRole(MINTER_ROLE, _msgSender());
+        _setupRole(PAUSER_ROLE, _msgSender());
+
+        _setBaseURI(baseURI);
+    }
+  
+   
+    enum TYPE {Monster, Spell, Trap}
+    TYPE CardType;
+    
+    struct Card {
+        //uint CardID;
+        string Name;
+        uint16 Attack;
+        uint16 Defence;
+        /*TYPE CardType;
+        string Message; */
+    }
+   
+   //mapping(uint256 => Card) public relation;
+
+    uint256 _tokenIdTracker = 1;
+   
+    Card [] public CardArray;
+   
+    function mint(address to, string memory Name, uint16 Attack, uint16 Defence) public virtual returns(uint256) {
+        require(hasRole(MINTER_ROLE, _msgSender()), "ERC721PresetMinterPauserAutoId: must have minter role to mint");
+        
+        Card memory c = Card(Name, Attack, Defence);
+        CardArray.push(c);
+        
+        _mint(to, _tokenIdTracker);
+        _tokenIdTracker= _tokenIdTracker +1;
+       
+        /*mapping m = new mapping();
+        m.update(_tokenIdTracker);
+        return m.relation(Card(this));*/
+       
+
+   }
+}
